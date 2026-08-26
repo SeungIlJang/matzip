@@ -43,6 +43,8 @@ interface MenuWithStats {
   name: string;
   price: number | null;
   imageUri: string | null;
+  source: string;
+  verifiedAt: string | null;
   totalCount: number;
   totalAvgScore: number;
   countryCount: number;

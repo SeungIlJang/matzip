@@ -11,6 +11,7 @@ import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { MenuService } from 'src/menu/menu.service';
 import { Favorite } from 'src/favorite/favorite.entity';
 import { User } from 'src/auth/user.entity';
+import { MenuSyncService } from 'src/menu-sync/menu-sync.service';
 
 @Injectable()
 export class RestaurantService {
@@ -20,6 +21,7 @@ export class RestaurantService {
     @InjectRepository(Favorite)
     private favoriteRepository: Repository<Favorite>,
     private menuService: MenuService,
+    private menuSyncService: MenuSyncService,
   ) {}
 
   async createRestaurant(createRestaurantDto: CreateRestaurantDto, user: User) {
@@ -100,6 +102,7 @@ export class RestaurantService {
     });
 
     if (existing) {
+      if (!existing.menuSyncedAt) await this.menuSyncService.sync(existing);
       return existing;
     }
 
@@ -113,6 +116,7 @@ export class RestaurantService {
 
     try {
       await this.restaurantRepository.save(restaurant);
+      await this.menuSyncService.sync(restaurant);
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException(
@@ -131,6 +135,10 @@ export class RestaurantService {
       throw new NotFoundException('존재하지 않는 음식점입니다.');
     }
 
+    if (!restaurant.menuSyncedAt) {
+      await this.menuSyncService.sync(restaurant);
+    }
+
     const menus = await this.menuService.getMenusWithStats(
       id,
       user.country ?? null,
@@ -142,6 +150,12 @@ export class RestaurantService {
     });
 
     return { ...restaurant, menus, isFavorite: Boolean(favorite) };
+  }
+
+  async syncRestaurantMenus(id: number) {
+    const restaurant = await this.restaurantRepository.findOneBy({ id });
+    if (!restaurant) throw new NotFoundException('존재하지 않는 음식점입니다.');
+    return this.menuSyncService.sync(restaurant);
   }
 
   async searchRestaurants(query: string, page: number) {

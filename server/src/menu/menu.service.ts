@@ -16,6 +16,8 @@ export interface MenuWithStats {
   name: string;
   price: number | null;
   imageUri: string | null;
+  source: string;
+  verifiedAt: Date | null;
   totalCount: number;
   totalAvgScore: number;
   countryCount: number;
@@ -84,6 +86,8 @@ export class MenuService {
       .addSelect('menu.name', 'name')
       .addSelect('menu.price', 'price')
       .addSelect('menu.imageUri', 'imageUri')
+      .addSelect('menu.source', 'source')
+      .addSelect('menu.verifiedAt', 'verifiedAt')
       .addSelect('COUNT(rec.id)', 'totalCount')
       .addSelect('COALESCE(AVG(rec.score), 0)', 'totalAvgScore')
       .addSelect(
@@ -117,6 +121,8 @@ export class MenuService {
         name: row.name,
         price: row.price === null ? null : Number(row.price),
         imageUri: row.imageUri ?? null,
+        source: row.source ?? 'user',
+        verifiedAt: row.verifiedAt ?? null,
         totalCount: Number(row.totalCount),
         totalAvgScore: Number(Number(row.totalAvgScore).toFixed(2)),
         countryCount: Number(row.countryCount),
@@ -126,5 +132,53 @@ export class MenuService {
         myVote: myScore === null ? null : myScore >= 4 ? 'like' : 'dislike',
       };
     });
+  }
+
+  async importMenus(
+    restaurantId: number,
+    menus: Array<{
+      name: string;
+      price?: number | null;
+      source: string;
+      sourceId?: string;
+    }>,
+  ) {
+    let imported = 0;
+    for (const candidate of menus) {
+      const name = candidate.name.replace(/\s+/g, ' ').trim();
+      if (!name) continue;
+
+      const existing = await this.menuRepository
+        .createQueryBuilder('menu')
+        .where('menu.restaurantId = :restaurantId', { restaurantId })
+        .andWhere('LOWER(menu.name) = LOWER(:name)', { name })
+        .getOne();
+
+      if (existing) {
+        if (existing.source === 'user' && candidate.source !== 'user') {
+          existing.source = candidate.source;
+          existing.sourceId = candidate.sourceId;
+          existing.verifiedAt = new Date();
+          if (existing.price == null && candidate.price != null) {
+            existing.price = candidate.price;
+          }
+          await this.menuRepository.save(existing);
+        }
+        continue;
+      }
+
+      await this.menuRepository.save(
+        this.menuRepository.create({
+          restaurantId,
+          name,
+          price: candidate.price ?? undefined,
+          source: candidate.source,
+          sourceId: candidate.sourceId,
+          verifiedAt: new Date(),
+        }),
+      );
+      imported += 1;
+    }
+    return imported;
   }
 }

@@ -7,12 +7,14 @@ import { Restaurant } from './restaurant.entity';
 import { Favorite } from 'src/favorite/favorite.entity';
 import { MenuModule } from 'src/menu/menu.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { MenuSyncModule } from 'src/menu-sync/menu-sync.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Restaurant, Favorite]),
     MenuModule,
     AuthModule,
+    MenuSyncModule,
   ],
   controllers: [RestaurantController],
   providers: [RestaurantService],

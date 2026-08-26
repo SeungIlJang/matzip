@@ -13,6 +13,7 @@ import { RecommendationModule } from './recommendation/recommendation.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { PlaceModule } from './place/place.module';
 import { LoggerMiddleware } from './@common/middlewares/logger.middleware';
+import { MenuSyncModule } from './menu-sync/menu-sync.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { LoggerMiddleware } from './@common/middlewares/logger.middleware';
     RecommendationModule,
     FavoriteModule,
     PlaceModule,
+    MenuSyncModule,
   ],
   providers: [ConfigService],
 })

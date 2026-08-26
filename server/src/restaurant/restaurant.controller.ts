@@ -73,4 +73,9 @@ export class RestaurantController {
       user,
     );
   }
+
+  @Post('/:id/menus/sync')
+  syncRestaurantMenus(@Param('id', ParseIntPipe) id: number) {
+    return this.restaurantService.syncRestaurantMenus(id);
+  }
 }

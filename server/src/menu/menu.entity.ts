@@ -32,6 +32,16 @@ export class Menu extends BaseEntity {
   @Column({ nullable: true })
   imageUri?: string;
 
+  /** user | tour-api | public-data | pos | owner | ocr */
+  @Column({ default: 'user' })
+  source: string;
+
+  @Column({ nullable: true })
+  sourceId?: string;
+
+  @Column({ type: 'datetime', nullable: true })
+  verifiedAt?: Date;
+
   @Column()
   restaurantId: number;
 

@@ -54,6 +54,11 @@ function MenuRankItem({
         {menu.price != null && (
           <Text style={styles.price}>{menu.price.toLocaleString()}원</Text>
         )}
+        {menu.source !== 'user' && (
+          <Text style={styles.source}>
+            {menu.source === 'tour-api' ? '관광공사 메뉴' : '연동 메뉴'}
+          </Text>
+        )}
 
         <View style={styles.statRow}>
           {count > 0 ? (
@@ -152,6 +157,10 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 13,
     color: colors.GRAY_700,
+  },
+  source: {
+    fontSize: 11,
+    color: colors.GRAY_500,
   },
   statRow: {
     flexDirection: 'row',

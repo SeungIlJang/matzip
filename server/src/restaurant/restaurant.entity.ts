@@ -41,6 +41,9 @@ export class Restaurant extends BaseEntity {
   @Column({ default: '' })
   address: string;
 
+  @Column({ type: 'datetime', nullable: true })
+  menuSyncedAt?: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 
