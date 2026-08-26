@@ -93,7 +93,7 @@ function buildHtml(center: LatLng) {
       userMarker=new naver.maps.Marker({position:position,map:map,zIndex:1000,icon:{content:'<div style="width:18px;height:18px;border-radius:50%;background:#4285F4;border:4px solid white;box-shadow:0 1px 5px rgba(0,0,0,.5);"></div>',anchor:new naver.maps.Point(9,9)}});
     }
     window.setData = function(list, places, sel){ selectedId = sel; renderMarkers(list); renderPlaces(places); };
-    window.moveTo = function(lat,lng){ if(map){ map.morph(new naver.maps.LatLng(lat,lng), 15); showUser(lat,lng); findArea(lat,lng); } };
+    window.moveTo = function(lat,lng){ if(map){ var position=new naver.maps.LatLng(lat,lng); map.setCenter(position); map.setZoom(16); showUser(lat,lng); findArea(lat,lng); } };
     function init(){
       map = new naver.maps.Map('map', { center: new naver.maps.LatLng(${center.latitude}, ${center.longitude}), zoom: 15, logoControl:true, mapDataControl:false, scaleControl:true });
       showUser(${center.latitude}, ${center.longitude});
