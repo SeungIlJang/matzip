@@ -14,10 +14,12 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
+import { createHash } from 'crypto';
 
 import { User } from './user.entity';
 import { AuthCredentialsDto } from './dto/auth-credential.dto';
 import { EditProfileDto } from './dto/edit-profile.dto';
+import { DeviceLoginDto } from './dto/device-login.dto';
 
 @Injectable()
 export class AuthService {
@@ -71,6 +73,37 @@ export class AuthService {
     await this.updateHashedRefreshToken(user.id, refreshToken);
 
     return { accessToken, refreshToken };
+  }
+
+  /**
+   * MVP 전용 익명 기기 로그인.
+   * 원본 기기 식별자는 저장하지 않고 SHA-256 해시로 만든 내부 계정만 사용한다.
+   */
+  async deviceLogin({ deviceId, country }: DeviceLoginDto): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    const deviceHash = createHash('sha256').update(deviceId).digest('hex');
+    const email = `device-${deviceHash}@local.matzip`;
+    let user = await this.userRepository.findOneBy({ email });
+
+    if (!user) {
+      user = this.userRepository.create({
+        email,
+        password: '',
+        nickname: `Guest ${deviceHash.slice(0, 6)}`,
+        country,
+        loginType: 'device',
+      });
+    } else {
+      user.country = country;
+    }
+
+    await this.userRepository.save(user);
+    const tokens = await this.getTokens({ email: user.email });
+    await this.updateHashedRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
   }
 
   async refreshToken(token: string): Promise<{

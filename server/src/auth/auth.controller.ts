@@ -15,6 +15,7 @@ import { AuthService } from './auth.service';
 import { User } from './user.entity';
 import { AuthCredentialsDto } from './dto/auth-credential.dto';
 import { EditProfileDto } from './dto/edit-profile.dto';
+import { DeviceLoginDto } from './dto/device-login.dto';
 import { GetUser } from 'src/@common/decorators/get-user.decorator';
 
 @Controller('auth')
@@ -33,6 +34,13 @@ export class AuthController {
     @Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     return this.authService.signin(authCredentialsDto);
+  }
+
+  @Post('/device')
+  deviceLogin(
+    @Body(ValidationPipe) deviceLoginDto: DeviceLoginDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    return this.authService.deviceLogin(deviceLoginDto);
   }
 
   @Get('/refresh')

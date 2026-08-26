@@ -11,6 +11,7 @@ import {
   kakaoLogin,
   logout,
   postLogin,
+  postDeviceLogin,
   postSignup,
 } from '@/api/auth';
 import {
@@ -50,6 +51,15 @@ function handleLoginSettled() {
 function useLogin(mutationOptions?: UseMutationCustomOptions) {
   return useMutation({
     mutationFn: postLogin,
+    onSuccess: handleLoginSuccess,
+    onSettled: handleLoginSettled,
+    ...mutationOptions,
+  });
+}
+
+function useDeviceLogin(mutationOptions?: UseMutationCustomOptions) {
+  return useMutation({
+    mutationFn: postDeviceLogin,
     onSuccess: handleLoginSuccess,
     onSettled: handleLoginSettled,
     ...mutationOptions,
@@ -144,6 +154,7 @@ function useAuth() {
   });
   const isLogin = getProfileQuery.isSuccess;
   const loginMutation = useLogin();
+  const deviceLoginMutation = useDeviceLogin();
   const kakaoLoginMutation = useKakaoLogin();
   const googleLoginMutation = useGoogleLogin();
   const editProfileMutation = useEditProfile();
@@ -152,6 +163,7 @@ function useAuth() {
   return {
     signupMutation,
     loginMutation,
+    deviceLoginMutation,
     kakaoLoginMutation,
     googleLoginMutation,
     editProfileMutation,

@@ -17,6 +17,7 @@ const queryKeys = {
 
 const storageKeys = {
   REFRESH_TOKEN: 'refreshToken',
+  DEVICE_ID: 'deviceId',
 } as const;
 
 export {queryKeys, storageKeys};

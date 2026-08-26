@@ -39,6 +39,19 @@ const postLogin = async ({
   return data;
 };
 
+type RequestDeviceLogin = {
+  deviceId: string;
+  country: string;
+};
+
+const postDeviceLogin = async (
+  body: RequestDeviceLogin,
+): Promise<ResponseToken> => {
+  const {data} = await axiosInstance.post('/auth/device', body);
+
+  return data;
+};
+
 type ResponseProfile = Profile;
 
 const getProfile = async (): Promise<ResponseProfile> => {
@@ -105,6 +118,7 @@ const googleLogin = async (idToken: string): Promise<ResponseToken> => {
 export {
   postSignup,
   postLogin,
+  postDeviceLogin,
   getProfile,
   getAccessToken,
   logout,
@@ -116,6 +130,7 @@ export {
 export type {
   RequestUser,
   RequestSignup,
+  RequestDeviceLogin,
   RequestEditProfile,
   RequestAppleLogin,
   ResponseToken,
