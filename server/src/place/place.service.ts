@@ -45,7 +45,7 @@ export class PlaceService {
       const { data } = await axios.get(
         'https://openapi.naver.com/v1/search/local.json',
         {
-          params: { query: trimmed, display: 5, sort: 'random' },
+          params: { query: trimmed, display: 20, sort: 'random' },
           headers: {
             'X-Naver-Client-Id': clientId,
             'X-Naver-Client-Secret': clientSecret,

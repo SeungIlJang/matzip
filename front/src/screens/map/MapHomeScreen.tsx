@@ -14,6 +14,7 @@ import RestaurantPreview from '@/components/RestaurantPreview';
 import useUserLocation from '@/hooks/useUserLocation';
 import useGetNearbyRestaurants from '@/hooks/queries/useGetNearbyRestaurants';
 import useResolveRestaurant from '@/hooks/queries/useResolveRestaurant';
+import useSearchPlaces from '@/hooks/queries/useSearchPlaces';
 import {colors, mapNavigations} from '@/constants';
 import {MapStackParamList} from '@/navigations/stack/MapStackNavigator';
 import {MainDrawerParamList} from '@/navigations/drawer/MainDrawerNavigator';
@@ -36,6 +37,7 @@ function MapHomeScreen() {
   const initialCenterRef = useRef<LatLng>(userLocation);
   const [center, setCenter] = useState<LatLng>(userLocation);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [currentArea, setCurrentArea] = useState('');
   const resolveRestaurant = useResolveRestaurant();
 
   useEffect(() => {
@@ -54,6 +56,9 @@ function MapHomeScreen() {
   );
 
   const {data: restaurants = []} = useGetNearbyRestaurants(region);
+  const {data: nearbyPlaces = []} = useSearchPlaces(
+    currentArea ? `${currentArea} 맛집` : '',
+  );
   const selectedRestaurant =
     restaurants.find(restaurant => restaurant.id === selectedId) ?? null;
 
@@ -107,9 +112,12 @@ function MapHomeScreen() {
         ref={mapRef}
         initialCenter={initialCenterRef.current}
         restaurants={restaurants}
+        places={nearbyPlaces}
         selectedId={selectedId}
         onRegionChange={setCenter}
         onSelectRestaurant={handleMarkerPress}
+        onSelectPlace={handleSelectPlace}
+        onAreaChange={setCurrentArea}
         onMapClick={() => setSelectedId(null)}
       />
 

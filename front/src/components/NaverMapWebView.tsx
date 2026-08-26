@@ -10,7 +10,7 @@ import {WebView, WebViewMessageEvent} from 'react-native-webview';
 
 import {colors} from '@/constants';
 import type {LatLng} from '@/types/map';
-import type {RestaurantMarker} from '@/types/domain';
+import type {NaverPlace, RestaurantMarker} from '@/types/domain';
 
 /** 신형 NCP 키(웹 Dynamic Map)로 네이버 지도 JS API 로드 */
 const NAVER_KEY_ID = 'iheghe6d2r';
@@ -22,9 +22,12 @@ export interface NaverMapWebViewHandle {
 interface NaverMapWebViewProps {
   initialCenter: LatLng;
   restaurants: RestaurantMarker[];
+  places: NaverPlace[];
   selectedId: number | null;
   onRegionChange: (coordinate: LatLng) => void;
   onSelectRestaurant: (id: number) => void;
+  onSelectPlace: (place: NaverPlace) => void;
+  onAreaChange: (area: string) => void;
   onMapClick: () => void;
 }
 
@@ -34,12 +37,12 @@ function buildHtml(center: LatLng) {
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <style>html,body,#map{margin:0;padding:0;width:100%;height:100%;overflow:hidden;}</style>
-  <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${NAVER_KEY_ID}"></script>
+  <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${NAVER_KEY_ID}&submodules=geocoder"></script>
 </head>
 <body>
   <div id="map"></div>
   <script>
-    var map, markers = [], selectedId = null;
+    var map, markers = [], placeMarkers = [], userMarker = null, selectedId = null;
     function post(o){ window.ReactNativeWebView && window.ReactNativeWebView.postMessage(JSON.stringify(o)); }
     function markerHtml(r, selected){
       var bg = selected ? '${colors.RED_500}' : '${colors.PINK_700}';
@@ -61,10 +64,40 @@ function buildHtml(center: LatLng) {
         markers.push(m);
       });
     }
-    window.setData = function(list, sel){ selectedId = sel; renderMarkers(list); };
-    window.moveTo = function(lat,lng){ if(map){ map.morph(new naver.maps.LatLng(lat,lng), 15); } };
+    function renderPlaces(list){
+      placeMarkers.forEach(function(m){ m.setMap(null); });
+      placeMarkers = [];
+      list.forEach(function(p, index){
+        var m = new naver.maps.Marker({
+          position: new naver.maps.LatLng(p.latitude, p.longitude),
+          map: map,
+          title: p.name,
+          icon: { content: '<div style="transform:translate(-50%,-100%);background:#fff;border:2px solid ${colors.PINK_700};border-radius:18px;padding:5px 8px;font-size:12px;font-weight:700;color:#333;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.35);">🍽 '+p.name+'</div>', anchor: new naver.maps.Point(0,0) }
+        });
+        naver.maps.Event.addListener(m, 'click', function(){ post({type:'placeClick', index:index}); });
+        placeMarkers.push(m);
+      });
+    }
+    function findArea(lat,lng){
+      if(!naver.maps.Service){ return; }
+      naver.maps.Service.reverseGeocode({coords:new naver.maps.LatLng(lat,lng)}, function(status,response){
+        if(status !== naver.maps.Service.Status.OK || !response.v2.results.length){ return; }
+        var region=response.v2.results[0].region;
+        var names=[region.area1.name,region.area2.name,region.area3.name].filter(Boolean);
+        post({type:'area', area:names.join(' ')});
+      });
+    }
+    function showUser(lat,lng){
+      var position=new naver.maps.LatLng(lat,lng);
+      if(userMarker){ userMarker.setPosition(position); return; }
+      userMarker=new naver.maps.Marker({position:position,map:map,zIndex:1000,icon:{content:'<div style="width:18px;height:18px;border-radius:50%;background:#4285F4;border:4px solid white;box-shadow:0 1px 5px rgba(0,0,0,.5);"></div>',anchor:new naver.maps.Point(9,9)}});
+    }
+    window.setData = function(list, places, sel){ selectedId = sel; renderMarkers(list); renderPlaces(places); };
+    window.moveTo = function(lat,lng){ if(map){ map.morph(new naver.maps.LatLng(lat,lng), 15); showUser(lat,lng); findArea(lat,lng); } };
     function init(){
       map = new naver.maps.Map('map', { center: new naver.maps.LatLng(${center.latitude}, ${center.longitude}), zoom: 15, logoControl:true, mapDataControl:false, scaleControl:true });
+      showUser(${center.latitude}, ${center.longitude});
+      findArea(${center.latitude}, ${center.longitude});
       naver.maps.Event.addListener(map, 'idle', function(){ var c = map.getCenter(); post({type:'region', latitude:c.lat(), longitude:c.lng()}); });
       naver.maps.Event.addListener(map, 'click', function(){ post({type:'mapClick'}); });
       post({type:'ready'});
@@ -81,9 +114,12 @@ const NaverMapWebView = forwardRef<NaverMapWebViewHandle, NaverMapWebViewProps>(
     {
       initialCenter,
       restaurants,
+      places,
       selectedId,
       onRegionChange,
       onSelectRestaurant,
+      onSelectPlace,
+      onAreaChange,
       onMapClick,
     },
     ref,
@@ -107,12 +143,17 @@ const NaverMapWebView = forwardRef<NaverMapWebViewHandle, NaverMapWebViewProps>(
         longitude: r.longitude,
         count: r.recommendationCount,
       }));
+      const placeList = places.map(place => ({
+        name: place.name,
+        latitude: place.latitude,
+        longitude: place.longitude,
+      }));
       webRef.current?.injectJavaScript(
-        `window.setData(${JSON.stringify(list)}, ${
-          selectedId ?? 'null'
-        }); true;`,
+        `window.setData(${JSON.stringify(list)}, ${JSON.stringify(
+          placeList,
+        )}, ${selectedId ?? 'null'}); true;`,
       );
-    }, [restaurants, selectedId]);
+    }, [places, restaurants, selectedId]);
 
     React.useEffect(() => {
       if (ready) {
@@ -126,6 +167,8 @@ const NaverMapWebView = forwardRef<NaverMapWebViewHandle, NaverMapWebViewProps>(
         id?: number;
         latitude?: number;
         longitude?: number;
+        index?: number;
+        area?: string;
       };
       try {
         msg = JSON.parse(event.nativeEvent.data);
@@ -144,6 +187,16 @@ const NaverMapWebView = forwardRef<NaverMapWebViewHandle, NaverMapWebViewProps>(
         case 'markerClick':
           if (msg.id != null) {
             onSelectRestaurant(msg.id);
+          }
+          break;
+        case 'placeClick':
+          if (msg.index != null && places[msg.index]) {
+            onSelectPlace(places[msg.index]);
+          }
+          break;
+        case 'area':
+          if (msg.area) {
+            onAreaChange(msg.area);
           }
           break;
         case 'mapClick':
