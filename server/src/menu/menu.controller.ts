@@ -29,6 +29,7 @@ export class MenuController {
     return this.menuService.getMenusWithStats(
       restaurantId,
       user.country ?? null,
+      user.id,
     );
   }
 

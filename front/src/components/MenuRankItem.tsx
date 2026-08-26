@@ -12,10 +12,19 @@ interface MenuRankItemProps {
   mode: FilterMode;
   rank: number;
   onPress?: () => void;
+  onVote?: (vote: 'like' | 'dislike') => void;
+  voting?: boolean;
 }
 
 /** 메뉴 랭킹 아이템. 활성 기준(전체/내 나라)의 평점·추천수 표시. */
-function MenuRankItem({menu, mode, rank, onPress}: MenuRankItemProps) {
+function MenuRankItem({
+  menu,
+  mode,
+  rank,
+  onPress,
+  onVote,
+  voting = false,
+}: MenuRankItemProps) {
   const {t} = useTranslation();
   const avgScore =
     mode === 'country' ? menu.countryAvgScore : menu.totalAvgScore;
@@ -59,6 +68,32 @@ function MenuRankItem({menu, mode, rank, onPress}: MenuRankItemProps) {
               {mode === 'country' ? t('menu.noCountryStat') : t('menu.noStat')}
             </Text>
           )}
+        </View>
+        <View style={styles.voteRow}>
+          <Pressable
+            disabled={voting}
+            style={[
+              styles.voteButton,
+              menu.myVote === 'like' && styles.voteButtonActive,
+            ]}
+            onPress={event => {
+              event.stopPropagation();
+              onVote?.('like');
+            }}>
+            <Text style={styles.voteText}>👍 {menu.likeCount}</Text>
+          </Pressable>
+          <Pressable
+            disabled={voting}
+            style={[
+              styles.voteButton,
+              menu.myVote === 'dislike' && styles.voteButtonActive,
+            ]}
+            onPress={event => {
+              event.stopPropagation();
+              onVote?.('dislike');
+            }}>
+            <Text style={styles.voteText}>👎 {menu.dislikeCount}</Text>
+          </Pressable>
         </View>
       </View>
 
@@ -130,6 +165,27 @@ const styles = StyleSheet.create({
   noStat: {
     fontSize: 13,
     color: colors.GRAY_500,
+  },
+  voteRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 4,
+  },
+  voteButton: {
+    borderWidth: 1,
+    borderColor: colors.GRAY_200,
+    borderRadius: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  voteButtonActive: {
+    borderColor: colors.PINK_700,
+    backgroundColor: colors.RED_300,
+  },
+  voteText: {
+    color: colors.GRAY_700,
+    fontSize: 13,
+    fontWeight: '600',
   },
   chevron: {
     fontSize: 22,

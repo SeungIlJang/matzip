@@ -1,4 +1,4 @@
-import React, {useMemo, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTranslation} from 'react-i18next';
@@ -38,6 +38,11 @@ function MapHomeScreen() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const resolveRestaurant = useResolveRestaurant();
 
+  useEffect(() => {
+    setCenter(userLocation);
+    mapRef.current?.moveTo(userLocation);
+  }, [userLocation]);
+
   const region = useMemo(
     () => ({
       latitude: center.latitude,
@@ -60,7 +65,16 @@ function MapHomeScreen() {
   };
 
   const handlePressUserLocation = () => {
+    setCenter(userLocation);
     mapRef.current?.moveTo(userLocation);
+  };
+
+  const handleMarkerPress = (restaurantId: number) => {
+    const restaurant = restaurants.find(item => item.id === restaurantId);
+    setSelectedId(restaurantId);
+    if (restaurant) {
+      openDetail(restaurant.id, restaurant.name);
+    }
   };
 
   // 등록된 맛집 선택 → 지도 이동 + 바로 상세(메뉴)로
@@ -95,7 +109,7 @@ function MapHomeScreen() {
         restaurants={restaurants}
         selectedId={selectedId}
         onRegionChange={setCenter}
-        onSelectRestaurant={setSelectedId}
+        onSelectRestaurant={handleMarkerPress}
         onMapClick={() => setSelectedId(null)}
       />
 

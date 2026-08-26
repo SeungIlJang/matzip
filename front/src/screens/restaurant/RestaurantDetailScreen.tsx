@@ -18,6 +18,7 @@ import CustomButton from '@/components/CustomButton';
 import useGetRestaurant from '@/hooks/queries/useGetRestaurant';
 import useMutateFavorite from '@/hooks/queries/useMutateFavorite';
 import useAuth from '@/hooks/queries/useAuth';
+import useMutateRecommendation from '@/hooks/queries/useMutateRecommendation';
 import {colors, mapNavigations} from '@/constants';
 import type {MapStackParamList} from '@/navigations/stack/MapStackNavigator';
 import type {MenuWithStats} from '@/types/domain';
@@ -47,6 +48,15 @@ function RestaurantDetailScreen({route, navigation}: Props) {
 
   const {data: restaurant, isPending} = useGetRestaurant(restaurantId);
   const favoriteMutation = useMutateFavorite();
+  const {createRecommendationMutation} = useMutateRecommendation();
+
+  const voteMenu = (menuId: number, vote: 'like' | 'dislike') => {
+    createRecommendationMutation.mutate({
+      menuId,
+      score: vote === 'like' ? 5 : 1,
+      comment: '',
+    });
+  };
 
   const menus = useMemo(
     () => sortMenus(restaurant?.menus ?? [], mode),
@@ -101,6 +111,8 @@ function RestaurantDetailScreen({route, navigation}: Props) {
             menu={item}
             mode={mode}
             rank={index + 1}
+            voting={createRecommendationMutation.isPending}
+            onVote={vote => voteMenu(item.id, vote)}
             onPress={() =>
               navigation.navigate(mapNavigations.MENU_DETAIL, {
                 menuId: item.id,

@@ -1,6 +1,13 @@
 import React, {useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
-import {Alert, Pressable, SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import {
+  Alert,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import {AuthStackParamList} from '@/navigations/stack/AuthStackNavigator';
 import CustomButton from '@/components/CustomButton';
@@ -16,9 +23,10 @@ type AuthHomeScreenProps = StackScreenProps<
 >;
 
 function createDeviceId() {
-  const random = () => Math.floor(Math.random() * 0xffffffff)
-    .toString(16)
-    .padStart(8, '0');
+  const random = () =>
+    Math.floor(Math.random() * 0xffffffff)
+      .toString(16)
+      .padStart(8, '0');
   return `${Date.now().toString(16)}-${random()}-${random()}-${random()}`;
 }
 
@@ -59,12 +67,17 @@ function AuthHomeScreen(_: AuthHomeScreenProps) {
         </Text>
       </View>
       <View style={styles.buttonContainer}>
-        <Text style={styles.guide}>Choose your country to see tastes from people like you.</Text>
+        <Text style={styles.guide}>
+          Choose your country to see tastes from people like you.
+        </Text>
         <Pressable
           style={styles.countrySelector}
           onPress={() => setPickerVisible(true)}>
-          <Text style={country ? styles.countryText : styles.countryPlaceholder}>
-            {country ? `${country.flag} ${country.name}` : 'Select your country'}
+          <Text
+            style={country ? styles.countryText : styles.countryPlaceholder}>
+            {country
+              ? `${country.flag} ${country.name}`
+              : 'Select your country'}
           </Text>
         </Pressable>
         <CustomButton

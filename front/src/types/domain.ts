@@ -1,4 +1,4 @@
-type LoginType = 'email' | 'kakao' | 'apple' | 'google';
+type LoginType = 'email' | 'kakao' | 'apple' | 'google' | 'device';
 
 /** 국가(입맛 그룹). code=ISO 3166-1 alpha-2 */
 interface Country {
@@ -47,6 +47,9 @@ interface MenuWithStats {
   totalAvgScore: number;
   countryCount: number;
   countryAvgScore: number;
+  likeCount: number;
+  dislikeCount: number;
+  myVote: 'like' | 'dislike' | null;
 }
 
 interface RestaurantDetail extends Restaurant {

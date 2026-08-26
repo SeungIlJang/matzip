@@ -134,6 +134,7 @@ export class RestaurantService {
     const menus = await this.menuService.getMenusWithStats(
       id,
       user.country ?? null,
+      user.id,
     );
 
     const favorite = await this.favoriteRepository.findOne({
