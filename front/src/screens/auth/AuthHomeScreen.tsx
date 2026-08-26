@@ -1,13 +1,6 @@
 import React from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
-import {
-  Dimensions,
-  Image,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import {useTranslation} from 'react-i18next';
 
 import {AuthStackParamList} from '@/navigations/stack/AuthStackNavigator';
@@ -33,11 +26,10 @@ function AuthHomeScreen({navigation}: AuthHomeScreenProps) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.imageContainer}>
-        <Image
-          resizeMode="contain"
-          style={styles.image}
-          source={require('@/assets/matzip.png')}
-        />
+        <Text style={styles.brand}>각자의입맛</Text>
+        <Text style={styles.tagline}>
+          Korean food picks from people like you
+        </Text>
       </View>
       <View style={styles.buttonContainer}>
         <CustomButton
@@ -70,11 +62,18 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     flex: 1.5,
-    width: Dimensions.get('screen').width / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  image: {
-    width: '100%',
-    height: '100%',
+  brand: {
+    color: colors.PINK_700,
+    fontSize: 38,
+    fontWeight: '800',
+  },
+  tagline: {
+    color: colors.GRAY_700,
+    fontSize: 14,
+    marginTop: 10,
   },
   buttonContainer: {
     flex: 1,

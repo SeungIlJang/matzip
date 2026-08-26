@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  // 실물 기기: `adb reverse tcp:3030 tcp:3030` 로 localhost 를 맥 서버에 연결.
-  // 에뮬레이터로 되돌아갈 땐 android 를 'http://10.0.2.2:3030' 로 변경.
-  baseURL: 'http://localhost:3030',
+  // 개발용 Mac 서버의 Tailscale 주소. 휴대폰과 Mac 모두 Tailscale이 연결되어 있어야 한다.
+  // 출시 전에는 운영 HTTPS API 주소로 교체한다.
+  baseURL: 'http://100.76.54.2:3030',
   withCredentials: true,
 });
 
