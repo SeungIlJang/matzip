@@ -32,7 +32,7 @@ function MapHomeScreen() {
   const {t} = useTranslation();
   const inset = useSafeAreaInsets();
   const navigation = useNavigation<Navigation>();
-  const {userLocation} = useUserLocation();
+  const {userLocation, requestUserLocation} = useUserLocation();
   const mapRef = useRef<NaverMapWebViewHandle | null>(null);
   const initialCenterRef = useRef<LatLng>(userLocation);
   const [center, setCenter] = useState<LatLng>(userLocation);
@@ -70,8 +70,7 @@ function MapHomeScreen() {
   };
 
   const handlePressUserLocation = () => {
-    setCenter(userLocation);
-    mapRef.current?.moveTo(userLocation);
+    requestUserLocation();
   };
 
   const handleMarkerPress = (restaurantId: number) => {
@@ -129,8 +128,13 @@ function MapHomeScreen() {
       />
 
       <View style={styles.buttonList}>
-        <Pressable style={styles.mapButton} onPress={handlePressUserLocation}>
-          <Text style={styles.mapButtonText}>{t('map.myLocation')}</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('map.myLocation')}
+          hitSlop={8}
+          style={styles.mapButton}
+          onPress={handlePressUserLocation}>
+          <Text style={styles.locationIcon}>⌖</Text>
         </Pressable>
       </View>
 
@@ -167,10 +171,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     elevation: 2,
   },
-  mapButtonText: {
+  locationIcon: {
     color: colors.WHITE,
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 30,
+    fontWeight: '700',
+    lineHeight: 34,
   },
   previewContainer: {
     position: 'absolute',

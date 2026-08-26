@@ -16,6 +16,7 @@ function useUserLocation() {
     longitude: 126.98989626020192,
   });
   const [isUserLocationError, setIsUserLocationError] = useState(false);
+  const [locationRequestKey, setLocationRequestKey] = useState(0);
   const settingsAlertVisible = useRef(false);
 
   useEffect(() => {
@@ -107,9 +108,13 @@ function useUserLocation() {
     });
 
     return () => subscription.remove();
-  }, []);
+  }, [locationRequestKey]);
 
-  return {userLocation, isUserLocationError};
+  const requestUserLocation = () => {
+    setLocationRequestKey(key => key + 1);
+  };
+
+  return {userLocation, isUserLocationError, requestUserLocation};
 }
 
 export default useUserLocation;
