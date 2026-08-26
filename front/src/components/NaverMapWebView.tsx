@@ -125,14 +125,22 @@ const NaverMapWebView = forwardRef<NaverMapWebViewHandle, NaverMapWebViewProps>(
     ref,
   ) => {
     const webRef = useRef<WebView | null>(null);
+    const pendingMoveRef = useRef<LatLng | null>(null);
     const [ready, setReady] = useState(false);
     const htmlRef = useRef(buildHtml(initialCenter));
 
+    const injectMove = useCallback(({latitude, longitude}: LatLng) => {
+      webRef.current?.injectJavaScript(
+        `window.moveTo(${latitude}, ${longitude}); true;`,
+      );
+    }, []);
+
     useImperativeHandle(ref, () => ({
-      moveTo: ({latitude, longitude}: LatLng) => {
-        webRef.current?.injectJavaScript(
-          `window.moveTo(${latitude}, ${longitude}); true;`,
-        );
+      moveTo: (coordinate: LatLng) => {
+        pendingMoveRef.current = coordinate;
+        if (ready) {
+          injectMove(coordinate);
+        }
       },
     }));
 
@@ -178,6 +186,7 @@ const NaverMapWebView = forwardRef<NaverMapWebViewHandle, NaverMapWebViewProps>(
       switch (msg.type) {
         case 'ready':
           setReady(true);
+          injectMove(pendingMoveRef.current ?? initialCenter);
           break;
         case 'region':
           if (msg.latitude != null && msg.longitude != null) {
@@ -211,6 +220,7 @@ const NaverMapWebView = forwardRef<NaverMapWebViewHandle, NaverMapWebViewProps>(
         style={styles.container}
         originWhitelist={['*']}
         source={{html: htmlRef.current, baseUrl: 'http://localhost'}}
+        onLoadStart={() => setReady(false)}
         onMessage={handleMessage}
         javaScriptEnabled
         domStorageEnabled
