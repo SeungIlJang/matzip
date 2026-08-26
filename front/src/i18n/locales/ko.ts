@@ -21,6 +21,9 @@ const ko: TranslationResource = {
   },
   map: {
     myLocation: '내 위치',
+    findingLocation: '현재 위치로 이동 중…',
+    searchThisArea: '이 지역에서 검색',
+    searchingArea: '음식점 검색 중…',
     drawer: '메뉴',
     longPressHint: '지도를 길게 눌러 음식점을 등록하세요',
   },

@@ -1,5 +1,11 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTranslation} from 'react-i18next';
 import {CompositeNavigationProp, useNavigation} from '@react-navigation/native';
@@ -32,7 +38,7 @@ function MapHomeScreen() {
   const {t} = useTranslation();
   const inset = useSafeAreaInsets();
   const navigation = useNavigation<Navigation>();
-  const {userLocation, requestUserLocation} = useUserLocation();
+  const {userLocation, isLocating, requestUserLocation} = useUserLocation();
   const mapRef = useRef<NaverMapWebViewHandle | null>(null);
   const initialCenterRef = useRef<LatLng>(userLocation);
   const [center, setCenter] = useState<LatLng>(userLocation);
@@ -56,9 +62,11 @@ function MapHomeScreen() {
   );
 
   const {data: restaurants = []} = useGetNearbyRestaurants(region);
-  const {data: nearbyPlaces = []} = useSearchPlaces(
-    currentArea ? `${currentArea} 맛집` : '',
-  );
+  const {
+    data: nearbyPlaces = [],
+    isFetching: isSearchingArea,
+    refetch: refetchNearbyPlaces,
+  } = useSearchPlaces(currentArea ? `${currentArea} 맛집` : '');
   const selectedRestaurant =
     restaurants.find(restaurant => restaurant.id === selectedId) ?? null;
 
@@ -71,6 +79,13 @@ function MapHomeScreen() {
 
   const handlePressUserLocation = () => {
     requestUserLocation();
+  };
+
+  const handleSearchThisArea = () => {
+    mapRef.current?.searchAt(center);
+    if (currentArea) {
+      refetchNearbyPlaces();
+    }
   };
 
   const handleMarkerPress = (restaurantId: number) => {
@@ -127,6 +142,28 @@ function MapHomeScreen() {
         onSelectPlace={handleSelectPlace}
       />
 
+      <Pressable
+        accessibilityRole="button"
+        style={[styles.areaSearchButton, {top: (inset.top || 12) + 68}]}
+        disabled={isSearchingArea}
+        onPress={handleSearchThisArea}>
+        {isSearchingArea ? (
+          <ActivityIndicator size="small" color={colors.PINK_700} />
+        ) : (
+          <Text style={styles.areaSearchIcon}>↻</Text>
+        )}
+        <Text style={styles.areaSearchText}>
+          {isSearchingArea ? t('map.searchingArea') : t('map.searchThisArea')}
+        </Text>
+      </Pressable>
+
+      {isLocating && (
+        <View style={styles.locatingBanner}>
+          <ActivityIndicator size="small" color={colors.WHITE} />
+          <Text style={styles.locatingText}>{t('map.findingLocation')}</Text>
+        </View>
+      )}
+
       <View style={styles.buttonList}>
         <Pressable
           accessibilityRole="button"
@@ -176,6 +213,48 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: '700',
     lineHeight: 34,
+  },
+  areaSearchButton: {
+    position: 'absolute',
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 20,
+    backgroundColor: colors.WHITE,
+    shadowColor: colors.BLACK,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    elevation: 3,
+  },
+  areaSearchIcon: {
+    color: colors.PINK_700,
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  areaSearchText: {
+    color: colors.GRAY_700,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  locatingBanner: {
+    position: 'absolute',
+    alignSelf: 'center',
+    bottom: 92,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: colors.PINK_700,
+  },
+  locatingText: {
+    color: colors.WHITE,
+    fontSize: 14,
+    fontWeight: '600',
   },
   previewContainer: {
     position: 'absolute',

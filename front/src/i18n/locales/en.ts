@@ -19,6 +19,9 @@ const en = {
   },
   map: {
     myLocation: 'My location',
+    findingLocation: 'Moving to your location…',
+    searchThisArea: 'Search this area',
+    searchingArea: 'Searching restaurants…',
     drawer: 'Menu',
     longPressHint: 'Long-press the map to add a restaurant',
   },

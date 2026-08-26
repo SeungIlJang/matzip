@@ -17,6 +17,7 @@ const NAVER_KEY_ID = 'iheghe6d2r';
 
 export interface NaverMapWebViewHandle {
   moveTo: (coordinate: LatLng) => void;
+  searchAt: (coordinate: LatLng) => void;
 }
 
 interface NaverMapWebViewProps {
@@ -93,6 +94,7 @@ function buildHtml(center: LatLng) {
       userMarker=new naver.maps.Marker({position:position,map:map,zIndex:1000,icon:{content:'<div style="width:18px;height:18px;border-radius:50%;background:#4285F4;border:4px solid white;box-shadow:0 1px 5px rgba(0,0,0,.5);"></div>',anchor:new naver.maps.Point(9,9)}});
     }
     window.setData = function(list, places, sel){ selectedId = sel; renderMarkers(list); renderPlaces(places); };
+    window.searchAt = function(lat,lng){ findArea(lat,lng); };
     window.moveTo = function(lat,lng){ if(map){ var position=new naver.maps.LatLng(lat,lng); map.setCenter(position); map.setZoom(16); showUser(lat,lng); findArea(lat,lng); } };
     function init(){
       map = new naver.maps.Map('map', { center: new naver.maps.LatLng(${center.latitude}, ${center.longitude}), zoom: 15, logoControl:true, mapDataControl:false, scaleControl:true });
@@ -126,6 +128,7 @@ const NaverMapWebView = forwardRef<NaverMapWebViewHandle, NaverMapWebViewProps>(
   ) => {
     const webRef = useRef<WebView | null>(null);
     const pendingMoveRef = useRef<LatLng | null>(null);
+    const pendingSearchRef = useRef<LatLng | null>(null);
     const [ready, setReady] = useState(false);
     const htmlRef = useRef(buildHtml(initialCenter));
 
@@ -140,6 +143,14 @@ const NaverMapWebView = forwardRef<NaverMapWebViewHandle, NaverMapWebViewProps>(
         pendingMoveRef.current = coordinate;
         if (ready) {
           injectMove(coordinate);
+        }
+      },
+      searchAt: (coordinate: LatLng) => {
+        pendingSearchRef.current = coordinate;
+        if (ready) {
+          webRef.current?.injectJavaScript(
+            `window.searchAt(${coordinate.latitude}, ${coordinate.longitude}); true;`,
+          );
         }
       },
     }));
@@ -187,6 +198,12 @@ const NaverMapWebView = forwardRef<NaverMapWebViewHandle, NaverMapWebViewProps>(
         case 'ready':
           setReady(true);
           injectMove(pendingMoveRef.current ?? initialCenter);
+          if (pendingSearchRef.current) {
+            const {latitude, longitude} = pendingSearchRef.current;
+            webRef.current?.injectJavaScript(
+              `window.searchAt(${latitude}, ${longitude}); true;`,
+            );
+          }
           break;
         case 'region':
           if (msg.latitude != null && msg.longitude != null) {

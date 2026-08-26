@@ -22,6 +22,7 @@ function useUserLocation() {
     longitude: 126.98989626020192,
   });
   const [isUserLocationError, setIsUserLocationError] = useState(false);
+  const [isLocating, setIsLocating] = useState(true);
   const [locationRequestKey, setLocationRequestKey] = useState(0);
   const settingsAlertVisible = useRef(false);
 
@@ -98,6 +99,7 @@ function useUserLocation() {
       const {latitude, longitude} = info.coords;
       setUserLocation({latitude, longitude});
       setIsUserLocationError(false);
+      setIsLocating(false);
       settingsAlertVisible.current = false;
     };
 
@@ -106,6 +108,7 @@ function useUserLocation() {
         return;
       }
       setIsUserLocationError(true);
+      setIsLocating(false);
       if (error.code === 1) {
         guideToSettings();
       } else {
@@ -149,6 +152,7 @@ function useUserLocation() {
     };
 
     const locate = async (requestPermission = true) => {
+      setIsLocating(true);
       if (Platform.OS === 'android') {
         let granted = await PermissionsAndroid.check(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -168,6 +172,7 @@ function useUserLocation() {
         }
         if (!granted) {
           setIsUserLocationError(true);
+          setIsLocating(false);
           if (requestPermission) {
             guideToSettings();
           }
@@ -200,7 +205,12 @@ function useUserLocation() {
     setLocationRequestKey(key => key + 1);
   };
 
-  return {userLocation, isUserLocationError, requestUserLocation};
+  return {
+    userLocation,
+    isUserLocationError,
+    isLocating,
+    requestUserLocation,
+  };
 }
 
 export default useUserLocation;
