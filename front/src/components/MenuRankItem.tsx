@@ -1,0 +1,140 @@
+import React from 'react';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {useTranslation} from 'react-i18next';
+
+import StarRating from './StarRating';
+import {colors} from '@/constants';
+import type {MenuWithStats} from '@/types/domain';
+import type {FilterMode} from './CountryFilterToggle';
+
+interface MenuRankItemProps {
+  menu: MenuWithStats;
+  mode: FilterMode;
+  rank: number;
+  onPress?: () => void;
+}
+
+/** 메뉴 랭킹 아이템. 활성 기준(전체/내 나라)의 평점·추천수 표시. */
+function MenuRankItem({menu, mode, rank, onPress}: MenuRankItemProps) {
+  const {t} = useTranslation();
+  const avgScore =
+    mode === 'country' ? menu.countryAvgScore : menu.totalAvgScore;
+  const count = mode === 'country' ? menu.countryCount : menu.totalCount;
+  const isCountryPick = mode === 'country' && menu.countryCount > 0;
+
+  return (
+    <Pressable style={styles.container} onPress={onPress}>
+      <View style={styles.rankBadge}>
+        <Text style={styles.rankText}>{rank}</Text>
+      </View>
+
+      <View style={styles.info}>
+        <View style={styles.titleRow}>
+          <Text style={styles.name} numberOfLines={1}>
+            {menu.name}
+          </Text>
+          {isCountryPick && (
+            <View style={styles.pickBadge}>
+              <Text style={styles.pickBadgeText}>
+                {t('restaurant.countryPick')}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {menu.price != null && (
+          <Text style={styles.price}>{menu.price.toLocaleString()}원</Text>
+        )}
+
+        <View style={styles.statRow}>
+          {count > 0 ? (
+            <>
+              <StarRating score={avgScore} size={14} />
+              <Text style={styles.stat}>
+                {avgScore.toFixed(1)} · 추천 {count}
+              </Text>
+            </>
+          ) : (
+            <Text style={styles.noStat}>
+              {mode === 'country' ? t('menu.noCountryStat') : t('menu.noStat')}
+            </Text>
+          )}
+        </View>
+      </View>
+
+      <Text style={styles.chevron}>›</Text>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 4,
+    gap: 12,
+  },
+  rankBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.PINK_700,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rankText: {
+    color: colors.WHITE,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  info: {
+    flex: 1,
+    gap: 4,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.BLACK,
+    flexShrink: 1,
+  },
+  pickBadge: {
+    backgroundColor: colors.RED_300,
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  pickBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.PINK_700,
+  },
+  price: {
+    fontSize: 13,
+    color: colors.GRAY_700,
+  },
+  statRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  stat: {
+    fontSize: 13,
+    color: colors.GRAY_700,
+  },
+  noStat: {
+    fontSize: 13,
+    color: colors.GRAY_500,
+  },
+  chevron: {
+    fontSize: 22,
+    color: colors.GRAY_500,
+  },
+});
+
+export default MenuRankItem;

@@ -1,0 +1,109 @@
+const en = {
+  common: {
+    save: 'Save',
+    cancel: 'Cancel',
+    delete: 'Delete',
+    edit: 'Edit',
+    logout: 'Log out',
+    error: 'Something went wrong',
+  },
+  auth: {
+    login: 'Log in',
+    signup: 'Sign up',
+    email: 'Email',
+    password: 'Password',
+    passwordConfirm: 'Confirm password',
+    myCountry: 'My country (taste)',
+    selectCountry: 'Select your country',
+    orContinueWith: 'or continue with',
+  },
+  map: {
+    myLocation: 'My location',
+    drawer: 'Menu',
+    longPressHint: 'Long-press the map to add a restaurant',
+  },
+  search: {
+    placeholder: 'Search restaurants',
+    noResults: 'No restaurants found',
+    hint: 'Search by restaurant name or address',
+    sectionRegistered: 'On MATZIP',
+    sectionNaver: 'From Naver',
+    addFromPlace: 'Add this place',
+    recent: 'Recent searches',
+    clearRecent: 'Clear',
+  },
+  filter: {
+    all: '🌍 All',
+    myCountry: 'My country',
+  },
+  restaurant: {
+    addTitle: 'Add restaurant',
+    name: 'Restaurant name',
+    address: 'Address (optional)',
+    register: 'Register restaurant',
+    menuRanking: 'Menu recommendation ranking',
+    addMenu: '＋ Add menu',
+    noMenus: 'No menus yet.\nAdd a menu and leave the first recommendation!',
+    countryPick: 'Local pick',
+  },
+  menu: {
+    addTitle: 'Add menu',
+    name: 'Menu name',
+    price: 'Price (optional)',
+    photo: 'Menu photo (optional)',
+    register: 'Register menu',
+    recommend: 'Recommend this menu',
+    noRecommendations: 'No recommendations yet. Be the first!',
+    noCountryRecommendations: 'No recommendations from your country yet.',
+    noStat: 'No recommendations yet',
+    noCountryStat: 'No local recommendations yet',
+  },
+  recommendation: {
+    title: 'Recommend menu',
+    scoreQuestion: 'How does this suit your taste?',
+    comment: 'Comment (optional)',
+    commentPlaceholder: 'e.g. Mild and savory — fits our taste well',
+    photo: 'Photos (optional)',
+    submit: 'Post recommendation',
+    anonymous: 'Anonymous',
+  },
+  feed: {
+    title: '{{flag}} {{country}} people\nare recommending',
+    titleGeneric: 'Trending menus',
+    empty:
+      'No recommendations yet.\nFind a restaurant on the map and recommend!',
+    favorites: 'Favorites',
+    recommendCount: '{{count}} recs',
+  },
+  favorite: {
+    title: 'Favorites',
+    empty: 'No saved restaurants yet.\nSave places you want to visit!',
+  },
+  profile: {
+    title: 'Profile',
+    edit: 'Edit profile',
+    nickname: 'Nickname',
+    country: 'Country',
+    language: 'Language',
+  },
+  drawer: {
+    home: 'Map',
+    feed: 'Feed',
+    calendar: 'Calendar',
+  },
+  social: {
+    kakao: 'Continue with Kakao',
+    google: 'Continue with Google',
+    needNative:
+      'Social login requires native SDK setup. See the integration notes.',
+  },
+  photo: {
+    count: 'Photo {{current}}/{{max}}',
+    maxTitle: 'Too many photos',
+    maxMessage: 'You can attach up to {{max}} photos.',
+    uploadFailed: 'Failed to upload photos.',
+  },
+};
+
+export default en;
+export type TranslationResource = typeof en;

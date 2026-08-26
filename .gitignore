@@ -1,0 +1,19 @@
+# macOS / IDE
+.DS_Store
+.idea/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+front/.env
+front/.env.*
+!front/.env.example
+server/.env
+server/.env.*
+!server/.env.example
+
+# Generated output
+server/dist/
+front/coverage/
+server/coverage/
