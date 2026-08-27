@@ -17,6 +17,8 @@ export interface PlaceResult {
 
 @Injectable()
 export class PlaceService {
+  private readonly nearbyLimit = 30;
+
   constructor(private configService: ConfigService) {}
 
   /**
@@ -42,26 +44,50 @@ export class PlaceService {
     }
 
     try {
-      const { data } = await axios.get(
-        'https://openapi.naver.com/v1/search/local.json',
-        {
-          params: { query: trimmed, display: 20, sort: 'random' },
-          headers: {
-            'X-Naver-Client-Id': clientId,
-            'X-Naver-Client-Secret': clientSecret,
-          },
-        },
+      const area = trimmed.replace(/\s+맛집$/, '');
+      const keywords = [
+        '맛집',
+        '음식점',
+        '한식',
+        '중식',
+        '일식',
+        '양식',
+        '분식',
+        '고기집',
+        '치킨',
+        '카페',
+      ];
+      const queries = trimmed.endsWith(' 맛집')
+        ? keywords.map((keyword) => `${area} ${keyword}`)
+        : [trimmed];
+      const responses = await Promise.all(
+        queries.map((searchQuery) =>
+          axios.get('https://openapi.naver.com/v1/search/local.json', {
+            params: { query: searchQuery, display: 5, sort: 'random' },
+            headers: {
+              'X-Naver-Client-Id': clientId,
+              'X-Naver-Client-Secret': clientSecret,
+            },
+          }),
+        ),
       );
 
-      const items: any[] = data.items ?? [];
-      return items.map((item) => ({
-        name: this.stripTags(item.title),
-        category: item.category ?? '',
-        address: item.address ?? '',
-        roadAddress: item.roadAddress ?? '',
-        longitude: Number(item.mapx) / 1e7,
-        latitude: Number(item.mapy) / 1e7,
-      }));
+      const places = responses
+        .flatMap(({ data }) => data.items ?? [])
+        .map((item: any) => ({
+          name: this.stripTags(item.title),
+          category: item.category ?? '',
+          address: item.address ?? '',
+          roadAddress: item.roadAddress ?? '',
+          longitude: Number(item.mapx) / 1e7,
+          latitude: Number(item.mapy) / 1e7,
+        }));
+      const unique = new Map<string, PlaceResult>();
+      for (const place of places) {
+        const key = `${place.name}|${place.roadAddress || place.address}`;
+        if (!unique.has(key)) unique.set(key, place);
+      }
+      return [...unique.values()].slice(0, this.nearbyLimit);
     } catch (error) {
       console.log(error?.response?.data ?? error?.message ?? error);
       throw new InternalServerErrorException(
