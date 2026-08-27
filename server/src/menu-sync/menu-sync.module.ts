@@ -6,10 +6,16 @@ import { Restaurant } from 'src/restaurant/restaurant.entity';
 import { MenuSyncService } from './menu-sync.service';
 import { TourApiProvider } from './tour-api.provider';
 import { GoodPriceProvider } from './good-price.provider';
+import { SeoulGoodPriceProvider } from './seoul-good-price.provider';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Restaurant]), MenuModule],
-  providers: [MenuSyncService, TourApiProvider, GoodPriceProvider],
+  providers: [
+    MenuSyncService,
+    TourApiProvider,
+    GoodPriceProvider,
+    SeoulGoodPriceProvider,
+  ],
   exports: [MenuSyncService],
 })
 export class MenuSyncModule {}

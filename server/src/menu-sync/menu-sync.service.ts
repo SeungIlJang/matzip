@@ -8,6 +8,7 @@ import { Restaurant } from 'src/restaurant/restaurant.entity';
 import { MenuProvider } from './menu-provider.interface';
 import { TourApiProvider } from './tour-api.provider';
 import { GoodPriceProvider } from './good-price.provider';
+import { SeoulGoodPriceProvider } from './seoul-good-price.provider';
 
 @Injectable()
 export class MenuSyncService {
@@ -21,8 +22,9 @@ export class MenuSyncService {
     private readonly config: ConfigService,
     tourApi: TourApiProvider,
     goodPrice: GoodPriceProvider,
+    seoulGoodPrice: SeoulGoodPriceProvider,
   ) {
-    this.providers = [tourApi, goodPrice];
+    this.providers = [seoulGoodPrice, tourApi, goodPrice];
   }
 
   needsSync(restaurant: Restaurant) {

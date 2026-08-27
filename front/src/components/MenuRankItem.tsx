@@ -58,6 +58,8 @@ function MenuRankItem({
           <Text style={styles.source}>
             {menu.source === 'tour-api'
               ? '관광공사 메뉴'
+              : menu.source === 'seoul-good-price'
+              ? '서울시 착한가격 메뉴'
               : menu.source === 'good-price'
               ? '착한가격 메뉴'
               : '연동 메뉴'}
