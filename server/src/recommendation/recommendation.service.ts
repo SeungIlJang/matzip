@@ -128,9 +128,13 @@ export class RecommendationService {
       .where('rec.country = :country', { country })
       .select('menu.id', 'menuId')
       .addSelect('menu.name', 'menuName')
+      .addSelect('menu.nameEn', 'menuNameEn')
+      .addSelect('menu.nameJa', 'menuNameJa')
       .addSelect('menu.imageUri', 'menuImageUri')
       .addSelect('restaurant.id', 'restaurantId')
       .addSelect('restaurant.name', 'restaurantName')
+      .addSelect('restaurant.nameEn', 'restaurantNameEn')
+      .addSelect('restaurant.nameJa', 'restaurantNameJa')
       .addSelect('COUNT(rec.id)', 'count')
       .addSelect('AVG(rec.score)', 'avgScore')
       .groupBy('menu.id')
@@ -144,9 +148,13 @@ export class RecommendationService {
     return rows.map((row) => ({
       menuId: Number(row.menuId),
       menuName: row.menuName,
+      menuNameEn: row.menuNameEn ?? null,
+      menuNameJa: row.menuNameJa ?? null,
       menuImageUri: row.menuImageUri ?? null,
       restaurantId: Number(row.restaurantId),
       restaurantName: row.restaurantName,
+      restaurantNameEn: row.restaurantNameEn ?? null,
+      restaurantNameJa: row.restaurantNameJa ?? null,
       count: Number(row.count),
       avgScore: Number(Number(row.avgScore).toFixed(2)),
     }));

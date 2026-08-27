@@ -10,10 +10,13 @@ import { Menu } from './menu.entity';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { Restaurant } from 'src/restaurant/restaurant.entity';
 import { User } from 'src/auth/user.entity';
+import { localizeName } from 'src/@common/utils/localize-name';
 
 export interface MenuWithStats {
   id: number;
   name: string;
+  nameEn: string | null;
+  nameJa: string | null;
   price: number | null;
   imageUri: string | null;
   source: string;
@@ -49,8 +52,10 @@ export class MenuService {
       throw new NotFoundException('존재하지 않는 음식점입니다.');
     }
 
+    const localized = await localizeName(createMenuDto.name);
     const menu = this.menuRepository.create({
       ...createMenuDto,
+      ...localized,
       restaurantId,
       createdBy: user,
     });
@@ -84,6 +89,8 @@ export class MenuService {
       .where('menu.restaurantId = :restaurantId', { restaurantId })
       .select('menu.id', 'id')
       .addSelect('menu.name', 'name')
+      .addSelect('menu.nameEn', 'nameEn')
+      .addSelect('menu.nameJa', 'nameJa')
       .addSelect('menu.price', 'price')
       .addSelect('menu.imageUri', 'imageUri')
       .addSelect('menu.source', 'source')
@@ -119,6 +126,8 @@ export class MenuService {
       return {
         id: Number(row.id),
         name: row.name,
+        nameEn: row.nameEn ?? null,
+        nameJa: row.nameJa ?? null,
         price: row.price === null ? null : Number(row.price),
         imageUri: row.imageUri ?? null,
         source: row.source ?? 'user',
@@ -167,10 +176,12 @@ export class MenuService {
         continue;
       }
 
+      const localized = await localizeName(name);
       await this.menuRepository.save(
         this.menuRepository.create({
           restaurantId,
           name,
+          ...localized,
           price: candidate.price ?? undefined,
           source: candidate.source,
           sourceId: candidate.sourceId,

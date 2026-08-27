@@ -90,6 +90,7 @@ function FeedHomeScreen() {
         <FeedMenuCard
           item={item}
           rank={index + 1}
+          country={country?.code}
           onPress={() =>
             navigation.navigate(mainNavigations.HOME, {
               screen: mapNavigations.RESTAURANT_DETAIL,

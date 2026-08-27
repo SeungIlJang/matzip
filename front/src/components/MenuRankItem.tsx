@@ -6,6 +6,7 @@ import StarRating from './StarRating';
 import {colors} from '@/constants';
 import type {MenuWithStats} from '@/types/domain';
 import type {FilterMode} from './CountryFilterToggle';
+import formatLocalizedName from '@/utils/localizedName';
 
 interface MenuRankItemProps {
   menu: MenuWithStats;
@@ -14,6 +15,7 @@ interface MenuRankItemProps {
   onPress?: () => void;
   onVote?: (vote: 'like' | 'dislike') => void;
   voting?: boolean;
+  country?: string | null;
 }
 
 /** 메뉴 랭킹 아이템. 활성 기준(전체/내 나라)의 평점·추천수 표시. */
@@ -24,6 +26,7 @@ function MenuRankItem({
   onPress,
   onVote,
   voting = false,
+  country,
 }: MenuRankItemProps) {
   const {t} = useTranslation();
   const avgScore =
@@ -40,7 +43,7 @@ function MenuRankItem({
       <View style={styles.info}>
         <View style={styles.titleRow}>
           <Text style={styles.name} numberOfLines={1}>
-            {menu.name}
+            {formatLocalizedName(menu, country)}
           </Text>
           {isCountryPick && (
             <View style={styles.pickBadge}>

@@ -4,15 +4,18 @@ import {useTranslation} from 'react-i18next';
 
 import {colors} from '@/constants';
 import type {RestaurantMarker} from '@/types/domain';
+import formatLocalizedName from '@/utils/localizedName';
 
 interface RestaurantPreviewProps {
   restaurant: RestaurantMarker;
+  country?: string | null;
   onPressDetail?: (restaurant: RestaurantMarker) => void;
 }
 
 /** 지도에서 마커를 탭하면 뜨는 하단 미리보기 카드. */
 function RestaurantPreview({
   restaurant,
+  country,
   onPressDetail,
 }: RestaurantPreviewProps) {
   const {t} = useTranslation();
@@ -22,7 +25,7 @@ function RestaurantPreview({
       onPress={() => onPressDetail?.(restaurant)}>
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>
-          {restaurant.name}
+          {formatLocalizedName(restaurant, country)}
         </Text>
         <Text style={styles.meta}>
           {t('feed.recommendCount', {count: restaurant.recommendationCount})}

@@ -6,15 +6,17 @@ import StarRating from './StarRating';
 import {getImageUri} from '@/api/image';
 import {colors} from '@/constants';
 import type {FeedItem} from '@/types/domain';
+import formatLocalizedName from '@/utils/localizedName';
 
 interface FeedMenuCardProps {
   item: FeedItem;
   rank?: number;
   onPress?: () => void;
+  country?: string | null;
 }
 
 /** 피드의 트렌딩 메뉴 카드. */
-function FeedMenuCard({item, rank, onPress}: FeedMenuCardProps) {
+function FeedMenuCard({item, rank, onPress, country}: FeedMenuCardProps) {
   const {t} = useTranslation();
   return (
     <Pressable style={styles.container} onPress={onPress}>
@@ -36,10 +38,24 @@ function FeedMenuCard({item, rank, onPress}: FeedMenuCardProps) {
 
       <View style={styles.info}>
         <Text style={styles.menuName} numberOfLines={1}>
-          {item.menuName}
+          {formatLocalizedName(
+            {
+              name: item.menuName,
+              nameEn: item.menuNameEn,
+              nameJa: item.menuNameJa,
+            },
+            country,
+          )}
         </Text>
         <Text style={styles.restaurantName} numberOfLines={1}>
-          {item.restaurantName}
+          {formatLocalizedName(
+            {
+              name: item.restaurantName,
+              nameEn: item.restaurantNameEn,
+              nameJa: item.restaurantNameJa,
+            },
+            country,
+          )}
         </Text>
         <View style={styles.statRow}>
           <StarRating score={item.avgScore} size={13} />

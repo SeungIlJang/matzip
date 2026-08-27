@@ -22,6 +22,8 @@ interface Profile {
 interface RestaurantMarker {
   id: number;
   name: string;
+  nameEn: string | null;
+  nameJa: string | null;
   latitude: number;
   longitude: number;
   recommendationCount: number;
@@ -30,6 +32,8 @@ interface RestaurantMarker {
 interface Restaurant {
   id: number;
   name: string;
+  nameEn: string | null;
+  nameJa: string | null;
   latitude: number;
   longitude: number;
   address: string;
@@ -41,6 +45,8 @@ interface Restaurant {
 interface MenuWithStats {
   id: number;
   name: string;
+  nameEn: string | null;
+  nameJa: string | null;
   price: number | null;
   imageUri: string | null;
   source: string;
@@ -92,9 +98,13 @@ interface NaverPlace {
 interface FeedItem {
   menuId: number;
   menuName: string;
+  menuNameEn: string | null;
+  menuNameJa: string | null;
   menuImageUri: string | null;
   restaurantId: number;
   restaurantName: string;
+  restaurantNameEn: string | null;
+  restaurantNameJa: string | null;
   count: number;
   avgScore: number;
 }

@@ -22,6 +22,7 @@ import useMutateRecommendation from '@/hooks/queries/useMutateRecommendation';
 import {colors, mapNavigations} from '@/constants';
 import type {MapStackParamList} from '@/navigations/stack/MapStackNavigator';
 import type {MenuWithStats} from '@/types/domain';
+import formatLocalizedName from '@/utils/localizedName';
 
 type Props = StackScreenProps<
   MapStackParamList,
@@ -80,7 +81,9 @@ function RestaurantDetailScreen({route, navigation}: Props) {
         ListHeaderComponent={
           <View style={styles.header}>
             <View style={styles.titleRow}>
-              <Text style={styles.name}>{restaurant?.name}</Text>
+              <Text style={styles.name}>
+                {restaurant ? formatLocalizedName(restaurant, country) : ''}
+              </Text>
               <Pressable
                 hitSlop={8}
                 onPress={() => favoriteMutation.mutate(restaurantId)}>
@@ -112,11 +115,12 @@ function RestaurantDetailScreen({route, navigation}: Props) {
             mode={mode}
             rank={index + 1}
             voting={createRecommendationMutation.isPending}
+            country={country}
             onVote={vote => voteMenu(item.id, vote)}
             onPress={() =>
               navigation.navigate(mapNavigations.MENU_DETAIL, {
                 menuId: item.id,
-                menuName: item.name,
+                menuName: formatLocalizedName(item, country),
               })
             }
           />

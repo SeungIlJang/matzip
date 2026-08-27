@@ -27,6 +27,12 @@ export class Menu extends BaseEntity {
   name: string;
 
   @Column({ nullable: true })
+  nameEn?: string;
+
+  @Column({ nullable: true })
+  nameJa?: string;
+
+  @Column({ nullable: true })
   price?: number;
 
   @Column({ nullable: true })

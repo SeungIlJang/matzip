@@ -12,6 +12,7 @@ import { MenuService } from 'src/menu/menu.service';
 import { Favorite } from 'src/favorite/favorite.entity';
 import { User } from 'src/auth/user.entity';
 import { MenuSyncService } from 'src/menu-sync/menu-sync.service';
+import { localizeName } from 'src/@common/utils/localize-name';
 
 @Injectable()
 export class RestaurantService {
@@ -25,8 +26,10 @@ export class RestaurantService {
   ) {}
 
   async createRestaurant(createRestaurantDto: CreateRestaurantDto, user: User) {
+    const localized = await localizeName(createRestaurantDto.name);
     const restaurant = this.restaurantRepository.create({
       name: createRestaurantDto.name,
+      ...localized,
       latitude: createRestaurantDto.latitude,
       longitude: createRestaurantDto.longitude,
       address: createRestaurantDto.address ?? '',
@@ -73,6 +76,8 @@ export class RestaurantService {
       })
       .select('restaurant.id', 'id')
       .addSelect('restaurant.name', 'name')
+      .addSelect('restaurant.nameEn', 'nameEn')
+      .addSelect('restaurant.nameJa', 'nameJa')
       .addSelect('restaurant.latitude', 'latitude')
       .addSelect('restaurant.longitude', 'longitude')
       .addSelect('COUNT(DISTINCT rec.id)', 'recommendationCount')
@@ -82,6 +87,8 @@ export class RestaurantService {
     return rows.map((row) => ({
       id: Number(row.id),
       name: row.name,
+      nameEn: row.nameEn ?? null,
+      nameJa: row.nameJa ?? null,
       latitude: Number(row.latitude),
       longitude: Number(row.longitude),
       recommendationCount: Number(row.recommendationCount),
@@ -109,8 +116,10 @@ export class RestaurantService {
       return existing;
     }
 
+    const localized = await localizeName(dto.name);
     const restaurant = this.restaurantRepository.create({
       name: dto.name,
+      ...localized,
       latitude: dto.latitude,
       longitude: dto.longitude,
       address: dto.address ?? '',

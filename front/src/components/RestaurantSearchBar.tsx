@@ -17,12 +17,14 @@ import useRecentSearches from '@/hooks/useRecentSearches';
 import {colors} from '@/constants';
 import type {LatLng} from '@/types/map';
 import type {NaverPlace, Restaurant} from '@/types/domain';
+import formatLocalizedName from '@/utils/localizedName';
 
 interface RestaurantSearchBarProps {
   origin?: LatLng;
   onOpenDrawer: () => void;
   onSelectRestaurant: (restaurant: Restaurant) => void;
   onSelectPlace: (place: NaverPlace) => void;
+  country?: string | null;
 }
 
 function haversineKm(a: LatLng, b: LatLng) {
@@ -51,6 +53,7 @@ function RestaurantSearchBar({
   onOpenDrawer,
   onSelectRestaurant,
   onSelectPlace,
+  country,
 }: RestaurantSearchBarProps) {
   const {t} = useTranslation();
   const inset = useSafeAreaInsets();
@@ -99,7 +102,7 @@ function RestaurantSearchBar({
   const handleSelectRegistered = (restaurant: Restaurant) => {
     addRecent(debounced);
     collapse();
-    setQuery(restaurant.name);
+    setQuery(formatLocalizedName(restaurant, country));
     onSelectRestaurant(restaurant);
   };
 
@@ -194,7 +197,7 @@ function RestaurantSearchBar({
                       onPress={() => handleSelectRegistered(restaurant)}>
                       <View style={styles.resultRow}>
                         <Text style={styles.resultName} numberOfLines={1}>
-                          {restaurant.name}
+                          {formatLocalizedName(restaurant, country)}
                         </Text>
                         {origin && (
                           <Text style={styles.distance}>

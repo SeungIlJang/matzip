@@ -16,6 +16,8 @@ import useGetInfiniteFavorites from '@/hooks/queries/useGetInfiniteFavorites';
 import {colors, mainNavigations, mapNavigations} from '@/constants';
 import type {FeedStackParamList} from '@/navigations/stack/FeedStackNavigator';
 import type {MainDrawerParamList} from '@/navigations/drawer/MainDrawerNavigator';
+import useAuth from '@/hooks/queries/useAuth';
+import formatLocalizedName from '@/utils/localizedName';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<FeedStackParamList>,
@@ -25,6 +27,8 @@ type Navigation = CompositeNavigationProp<
 function FeedFavoriteScreen() {
   const {t} = useTranslation();
   const navigation = useNavigation<Navigation>();
+  const {getProfileQuery} = useAuth();
+  const country = getProfileQuery.data?.country ?? null;
   const {data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending} =
     useGetInfiniteFavorites();
   const favorites = data?.pages.flat() ?? [];
@@ -55,12 +59,15 @@ function FeedFavoriteScreen() {
           onPress={() =>
             navigation.navigate(mainNavigations.HOME, {
               screen: mapNavigations.RESTAURANT_DETAIL,
-              params: {restaurantId: item.id, restaurantName: item.name},
+              params: {
+                restaurantId: item.id,
+                restaurantName: formatLocalizedName(item, country),
+              },
             })
           }>
           <View style={styles.info}>
             <Text style={styles.name} numberOfLines={1}>
-              {item.name}
+              {formatLocalizedName(item, country)}
             </Text>
             {Boolean(item.address) && (
               <Text style={styles.address} numberOfLines={1}>

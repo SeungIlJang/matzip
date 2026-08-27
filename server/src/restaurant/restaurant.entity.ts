@@ -26,6 +26,12 @@ export class Restaurant extends BaseEntity {
   @Column()
   name: string;
 
+  @Column({ nullable: true })
+  nameEn?: string;
+
+  @Column({ nullable: true })
+  nameJa?: string;
+
   @Column({
     type: 'decimal',
     transformer: new ColumnNumericTransformer(),

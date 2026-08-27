@@ -26,6 +26,7 @@ import {MapStackParamList} from '@/navigations/stack/MapStackNavigator';
 import {MainDrawerParamList} from '@/navigations/drawer/MainDrawerNavigator';
 import type {LatLng} from '@/types/map';
 import type {NaverPlace, Restaurant} from '@/types/domain';
+import useAuth from '@/hooks/queries/useAuth';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<MapStackParamList>,
@@ -45,6 +46,8 @@ function MapHomeScreen() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [currentArea, setCurrentArea] = useState('');
   const resolveRestaurant = useResolveRestaurant();
+  const {getProfileQuery} = useAuth();
+  const country = getProfileQuery.data?.country ?? null;
 
   useEffect(() => {
     setCenter(userLocation);
@@ -140,6 +143,7 @@ function MapHomeScreen() {
         onOpenDrawer={() => navigation.openDrawer()}
         onSelectRestaurant={handleSelectRestaurant}
         onSelectPlace={handleSelectPlace}
+        country={country}
       />
 
       <Pressable
@@ -179,6 +183,7 @@ function MapHomeScreen() {
         <View style={[styles.previewContainer, {paddingBottom: inset.bottom}]}>
           <RestaurantPreview
             restaurant={selectedRestaurant}
+            country={country}
             onPressDetail={restaurant =>
               openDetail(restaurant.id, restaurant.name)
             }
