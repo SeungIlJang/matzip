@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -6,6 +7,7 @@ import { MenuService } from 'src/menu/menu.service';
 import { Restaurant } from 'src/restaurant/restaurant.entity';
 import { MenuProvider } from './menu-provider.interface';
 import { TourApiProvider } from './tour-api.provider';
+import { GoodPriceProvider } from './good-price.provider';
 
 @Injectable()
 export class MenuSyncService {
@@ -16,9 +18,20 @@ export class MenuSyncService {
     @InjectRepository(Restaurant)
     private readonly restaurants: Repository<Restaurant>,
     private readonly menus: MenuService,
+    private readonly config: ConfigService,
     tourApi: TourApiProvider,
+    goodPrice: GoodPriceProvider,
   ) {
-    this.providers = [tourApi];
+    this.providers = [tourApi, goodPrice];
+  }
+
+  needsSync(restaurant: Restaurant) {
+    if (!restaurant.menuSyncedAt) return true;
+    const maxAgeDays = Number(
+      this.config.get<string>('MENU_SYNC_MAX_AGE_DAYS') ?? 30,
+    );
+    const maxAgeMs = Math.max(1, maxAgeDays) * 24 * 60 * 60 * 1000;
+    return Date.now() - new Date(restaurant.menuSyncedAt).getTime() >= maxAgeMs;
   }
 
   async sync(restaurant: Restaurant) {

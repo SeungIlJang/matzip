@@ -35,6 +35,7 @@ export class RestaurantService {
 
     try {
       await this.restaurantRepository.save(restaurant);
+      await this.menuSyncService.sync(restaurant);
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException(
@@ -102,7 +103,9 @@ export class RestaurantService {
     });
 
     if (existing) {
-      if (!existing.menuSyncedAt) await this.menuSyncService.sync(existing);
+      if (this.menuSyncService.needsSync(existing)) {
+        await this.menuSyncService.sync(existing);
+      }
       return existing;
     }
 
@@ -135,7 +138,7 @@ export class RestaurantService {
       throw new NotFoundException('존재하지 않는 음식점입니다.');
     }
 
-    if (!restaurant.menuSyncedAt) {
+    if (this.menuSyncService.needsSync(restaurant)) {
       await this.menuSyncService.sync(restaurant);
     }
 

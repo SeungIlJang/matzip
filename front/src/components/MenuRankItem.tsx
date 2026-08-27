@@ -56,7 +56,11 @@ function MenuRankItem({
         )}
         {menu.source !== 'user' && (
           <Text style={styles.source}>
-            {menu.source === 'tour-api' ? '관광공사 메뉴' : '연동 메뉴'}
+            {menu.source === 'tour-api'
+              ? '관광공사 메뉴'
+              : menu.source === 'good-price'
+              ? '착한가격 메뉴'
+              : '연동 메뉴'}
           </Text>
         )}
 
